@@ -11,13 +11,14 @@ Joi offers a built in [ref](https://github.com/hapijs/joi/blob/v15.0.1/API.md#re
 const VanillaJoi = require('joi');
 const joiFkExtension = require('joi-fk-extension');
 
-const Joi = VanillaJoi.extend(joiFkExtension);
+const Joi = VanillaJoi.extend(joiFkExtension.fkString);
+// number foreign keys are also supported with joiFkExtension.fkNumber
 
 const schema = Joi.array().items(
   Joi.object({
     // require that packageId must equal the packageId field 
     // of one of the items in the 'packages' array of the reference data
-    packageId: Joi.any().fk('packages.[].packageId'),
+    packageId: Joi.string().fk('packages.[].packageId'),
   }),
 );
 
@@ -60,7 +61,7 @@ const referenceData = {
 const zooSchema = Joi.object({
   animals: Joi.array().items(Joi.object({
     name: Joi.string(),
-    speciesId: Joi.any().fk('species.[].speciesId'),
+    speciesId: Joi.string().fk('species.[].speciesId'),
   })),
 });
 ```
@@ -79,7 +80,7 @@ const referenceData = {
 const zooSchema = Joi.object({
   animals: Joi.array().items(Joi.object({
     name: Joi.string(),
-    speciesId: Joi.any().fk([
+    speciesId: Joi.string().fk([
       'species.[].speciesId',
       'species.[].alternateId',
     ]),

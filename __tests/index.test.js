@@ -1,7 +1,9 @@
 const VanillaJoi = require('joi');
 const fkExtension = require('../index.js');
 
-const Joi = VanillaJoi.extend(fkExtension);
+const Joi = VanillaJoi
+  .extend(fkExtension.fkString)
+  .extend(fkExtension.fkNumber);
 
 const modelSchema = Joi.object({
   id: Joi.string(),
@@ -17,11 +19,11 @@ const makeSchema = Joi.object({
 
 const vehiclesSchema = Joi.object({
   vinNumber: Joi.string(),
-  makeId: Joi.any().fk([
+  makeId: Joi.string().fk([
     'makes.[].id',
     'makes.[].alternateIds.[]',
   ]).required(),
-  modelId: Joi.any().fk('makes.[].models.[].id').required(),
+  modelId: Joi.string().fk('makes.[].models.[].id').required(),
 });
 
 const carsSchema = Joi.object({
@@ -55,6 +57,27 @@ const makes = [
       },
     ],
   },    
+];
+
+const animalsSchema = Joi.object({
+  species: Joi.array().items({
+    speciesId: Joi.number().required().tags('PK')
+      .description('Unique ID for the species'),
+    name: Joi.string().required().max(30),
+  }),
+  animals: Joi.array().items({
+    animalId: Joi.number().required().tags('PK')
+     .description('Unique ID for the animal'),
+    name: Joi.string().required().max(50),
+    speciesId: Joi.number().fk('species.[].speciesId').required()
+      .label('Species'),
+  }),
+});
+
+const species = [
+  { speciesId: 1, name: 'Tiger' },
+  { speciesId: 2, name: 'Koala' },
+  { speciesId: 3, name: 'African Elephant' },
 ];
 
 describe('Joi-fk-extension', () => {
@@ -116,4 +139,25 @@ describe('Joi-fk-extension', () => {
     expect(result.error).toBeTruthy();
     expect(result.error.name).toBe('ValidationError');
   }); 
+  it('handles numeric ids when fk is valid', () => {
+    const data = {
+      species,
+      animals: [
+        { animalId: 1, speciesId: 1, name: 'bob '},
+      ]
+    }
+    const result = Joi.validate(data, animalsSchema, { context: data });
+    expect(result.error).toBeFalsy();
+  });
+  it('handles numeric ids when fk is not valid', () => {
+    const data = {
+      species,
+      animals: [
+        { animalId: 1, speciesId: 11, name: 'bob '},
+      ]
+    }
+    const result = Joi.validate(data, animalsSchema, { context: data });
+    expect(result.error).toBeTruthy();
+    expect(result.error.name).toBe('ValidationError');
+  });
 });
