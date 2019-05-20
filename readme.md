@@ -45,7 +45,7 @@ console.log(fail.error); //"packageId" "commander" could not be found as a refer
 
 Requires that the field must refer to a foreign key field referenced by fkPath.
 
-Reference data to search for the reference in must be supplied to Joi in options.context (e.g. in a call to `Joi.validate(data, schema, options)`) 
+Reference data to search for the reference in must be supplied to Joi in options.context.data (e.g. in a call to `Joi.validate(data, schema, options)`) 
 
 - `fkPath` - The format of fkPath has dot seperated object fields, with search across an array indicated by a pair of square brackets (`[]`)
 
