@@ -69,12 +69,12 @@ const joiFkBaseExtension = (joi, baseType) => ({
         }
         const fkPaths = Array.isArray(params.fkPath) ? params.fkPath : [ params.fkPath ];
         const cacheKey = fkPaths.join(',');
-        options.context._cache = options.context._cache || {};
+        options.context._fkCache = options.context._fkCache || {};
 
-        if (!options.context._cache[cacheKey]) {
-          options.context._cache[cacheKey] = createCache(fkPaths, options.context.data);
+        if (!options.context._fkCache[cacheKey]) {
+          options.context._fkCache[cacheKey] = createCache(fkPaths, options.context.data);
         }
-        if (!options.context._cache[cacheKey].includes(value)) {
+        if (!options.context._fkCache[cacheKey].includes(value)) {
           return joi.createError(`${baseType}.fkNotFound`,
           { value, path: params.fkPath },
           state, options);
