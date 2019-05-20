@@ -92,7 +92,7 @@ describe('Joi-fk-extension', () => {
         },
       ],
     };
-    const result = Joi.validate(data, carsSchema, { context: data });
+    const result = Joi.validate(data, carsSchema, { context: { data } });
     expect(result.error).toBeFalsy();
   });
   it('fails validation when FK does not exist', () => {
@@ -106,7 +106,7 @@ describe('Joi-fk-extension', () => {
         },
       ],
     };
-    const result = Joi.validate(data, carsSchema, { context: data });
+    const result = Joi.validate(data, carsSchema, { context: { data } });
     expect(result.error).toBeTruthy();
     expect(result.error.name).toBe('ValidationError');
   });  
@@ -121,7 +121,7 @@ describe('Joi-fk-extension', () => {
         },
       ],
     };
-    const result = Joi.validate(data, carsSchema, { context: data });
+    const result = Joi.validate(data, carsSchema, { context: { data } });
     expect(result.error).toBeFalsy();
   });  
   it('fails validation when context is not supplied', () => {
@@ -146,7 +146,7 @@ describe('Joi-fk-extension', () => {
         { animalId: 1, speciesId: 1, name: 'bob '},
       ]
     }
-    const result = Joi.validate(data, animalsSchema, { context: data });
+    const result = Joi.validate(data, animalsSchema, { context: { data } });
     expect(result.error).toBeFalsy();
   });
   it('handles numeric ids when fk is not valid', () => {
@@ -156,8 +156,44 @@ describe('Joi-fk-extension', () => {
         { animalId: 1, speciesId: 11, name: 'bob '},
       ]
     }
-    const result = Joi.validate(data, animalsSchema, { context: data });
+    const result = Joi.validate(data, animalsSchema, { context: { data } });
     expect(result.error).toBeTruthy();
     expect(result.error.name).toBe('ValidationError');
   });
+  it('performs reasonably', () => {
+    const perfSchema = Joi.object({
+      parents: Joi.array().items({
+        parentId: Joi.string(),
+      }),
+      links: Joi.array().items({
+        from: Joi.string().fk('parents.[].parentId'),
+        to: Joi.string().fk('parents.[].parentId'),
+      }),
+    });
+    const data = {
+      parents: [],
+      links: [],
+    };
+    const parentItems = 1000;
+    for (let i = 0; i < parentItems; i += 1) {
+      const id = `${10000* Math.random()}`;
+      data.parents.push({
+        parentId: id,
+      });
+    }
+    for (let i = 0; i < 1000; i += 1) {
+      const parentIndex1 = Math.round(Math.random()*(parentItems-1));
+      const parentIndex2 = Math.round(Math.random()*(parentItems-1));
+      data.links.push({
+        from: data.parents[parentIndex1].parentId,
+        to: data.parents[parentIndex2].parentId,
+      });      
+    }
+    const start = new Date();
+    const result = Joi.validate(data, perfSchema, { context: { data } });
+    const end = new Date();
+    const durationMs = end - start;
+    expect(result.error).toBeFalsy();
+    expect(durationMs).toBeLessThan(500);
+  });     
 });

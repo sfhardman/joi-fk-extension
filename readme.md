@@ -29,11 +29,11 @@ const referenceData = {
   ],
 };
 
-const pass = Joi.validate([{ packageId: 'hapi' }], schema, { context: referenceData });
+const pass = Joi.validate([{ packageId: 'hapi' }], schema, { context: {data: referenceData } );
 
 console.log(pass.error); // null - no error
 
-const fail = Joi.validate([{ packageId: 'commander' }], schema, { context: referenceData });
+const fail = Joi.validate([{ packageId: 'commander' }], schema, { context: { data: referenceData } });
 
 console.log(fail.error); //"packageId" "commander" could not be found as a reference to "packages.[].packageId"
 
@@ -87,3 +87,8 @@ const zooSchema = Joi.object({
   })),
 });
 ```
+
+### options
+
+#### options.context.data
+This extension requires that you pass the data that contains foreign keys in the ```options.context.data``` parameter to the validate method.  Note that the ```context``` object should not be re-used between calls to validate as it is used to cache foreign key lookups for performance reasons.
