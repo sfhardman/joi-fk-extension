@@ -2,24 +2,6 @@ const getNextPath = fkPathChunks => fkPathChunks
   .filter((chunk, index) => index > 0)
   .join('.');
 
-const findFk = (fkValue, fkPath, data) => {
-  const fkPathChunks = fkPath.split('.').filter(chunk => !!chunk);
-  if (!fkPathChunks.length) {
-    return data === fkValue;
-  }
-  const currentChunk = fkPathChunks[0];
-  if (currentChunk === '[]') {
-    if (!Array.isArray(data)) {
-      return false;
-    }
-    return data.some(item => findFk(fkValue, getNextPath(fkPathChunks), item));
-  }
-  if (!(currentChunk in data)) {
-    return false;
-  }
-  return findFk(fkValue, getNextPath(fkPathChunks), data[currentChunk]);
-};
-
 const getPossibleFks = (fkPath, data) => {
   const fkPathChunks = fkPath.split('.').filter(chunk => !!chunk);
   if (!fkPathChunks.length) {
