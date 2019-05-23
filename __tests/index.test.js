@@ -195,5 +195,41 @@ describe('Joi-fk-extension', () => {
     const durationMs = end - start;
     expect(result.error).toBeFalsy();
     expect(durationMs).toBeLessThan(500);
-  });     
+  });   
+  it('handles complex paths', () => {
+    const complexSchema = Joi.object({
+      a: Joi.array().items({
+        b: Joi.object({
+          c: Joi.array().items({
+            d: Joi.string(),
+          })
+        }),
+      }),
+      e: Joi.array().items({
+        f: Joi.string().fk('a.[].b.c.[].d'),
+      }),
+    });
+
+    const data = {
+      a: [
+        {
+          b: {
+            c: [
+              {
+                d: 'key',
+              },
+            ],
+          },
+        },
+      ],
+      e: [
+        {
+          f: 'key',
+        },
+      ],
+    };
+
+    const result = Joi.validate(data, complexSchema, { context: { data } });
+    expect(result.error).toBeFalsy();
+  });  
 });

@@ -16,7 +16,7 @@ const getPossibleFks = (fkPath, data) => {
     data.forEach(item => result.push(...getPossibleFks(getNextPath(fkPathChunks), item)));
     return result;
   }
-  if (!(currentChunk in data)) {
+  if (!data[currentChunk]) {
     return [];
   }
   return getPossibleFks(getNextPath(fkPathChunks), data[currentChunk]);
