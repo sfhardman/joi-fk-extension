@@ -1,5 +1,7 @@
 # Joi-fk-extension
 
+*This is deprecated - please see instead https://github.com/hermetic-architecture-portal/joi-key-extensions*
+
 This is an extension for the [Joi](https://github.com/hapijs/joi) validation library that allows validation of foreign key style references to other objects.
 
 Joi offers a built in [ref](https://github.com/hapijs/joi/blob/v15.0.1/API.md#refkey-options) validation, but it cannot traverse arrays to look up references.
